@@ -140,7 +140,6 @@ function initScrollAnimations() {
     { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
   );
 
-  // فقط المان‌های داخل صفحه فعال و فوتر را رصد کن
   const activeView = document.querySelector(".page-view.active");
   if (activeView) {
     activeView
@@ -150,7 +149,6 @@ function initScrollAnimations() {
       .forEach((el) => activeObserver.observe(el));
   }
 
-  // فوتر همیشه رصد می‌شود
   document
     .querySelectorAll("footer .reveal-up:not(.revealed)")
     .forEach((el) => activeObserver.observe(el));
@@ -170,7 +168,6 @@ function navigate(viewId, param = null) {
 
   document.querySelectorAll(".page-view").forEach((el) => {
     el.classList.remove("active");
-    // پاک کردن انیمیشن‌های صفحه‌ای که از آن خارج می‌شویم تا دفعه بعد دوباره پخش شود
     el.querySelectorAll(".revealed").forEach((rev) =>
       rev.classList.remove("revealed"),
     );
@@ -180,6 +177,15 @@ function navigate(viewId, param = null) {
   targetView.classList.add("active");
   window.scrollTo({ top: 0, behavior: "smooth" });
 
+  // بستن خودکار منوی موبایل هنگام تغییر صفحه
+  const navbarCollapse = document.getElementById("mainNav");
+  if (navbarCollapse.classList.contains("show")) {
+    const bsCollapse =
+      bootstrap.Collapse.getInstance(navbarCollapse) ||
+      new bootstrap.Collapse(navbarCollapse);
+    bsCollapse.hide();
+  }
+
   updateSEO(viewId);
 
   if (viewId === "home") renderHomeProducts();
@@ -187,7 +193,6 @@ function navigate(viewId, param = null) {
   if (viewId === "product-detail" && param) loadProductDetail(param);
   if (viewId === "cart") renderCartPage();
 
-  // فراخوانی Observer برای المان‌های صفحه جدید پس از رندر شدن
   setTimeout(initScrollAnimations, 100);
 }
 
@@ -200,12 +205,24 @@ function saveCart() {
   if (document.getElementById("view-cart").classList.contains("active"))
     renderCartPage();
 }
+
 function updateCartBadge() {
-  const badge = document.getElementById("cart-badge");
+  const badgeDesk = document.getElementById("cart-badge");
+  const badgeMob = document.getElementById("cart-badge-mobile");
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  badge.innerText = toPersianNum(totalItems);
-  badge.style.display = totalItems > 0 ? "block" : "none";
+  const num = toPersianNum(totalItems);
+  const displayStyle = totalItems > 0 ? "block" : "none";
+
+  if (badgeDesk) {
+    badgeDesk.innerText = num;
+    badgeDesk.style.display = displayStyle;
+  }
+  if (badgeMob) {
+    badgeMob.innerText = num;
+    badgeMob.style.display = displayStyle;
+  }
 }
+
 function addToCart(productId, qty = 1) {
   const product = productsDB.find((p) => p.id === productId);
   if (!product) return;
@@ -215,6 +232,7 @@ function addToCart(productId, qty = 1) {
   saveCart();
   showToast("محصول با موفقیت به سبد خرید اضافه شد.");
 }
+
 function changeCartQty(productId, amount) {
   const item = cart.find((i) => i.id === productId);
   if (item) {
@@ -223,10 +241,12 @@ function changeCartQty(productId, amount) {
     saveCart();
   }
 }
+
 function removeFromCart(productId) {
   cart = cart.filter((item) => item.id !== productId);
   saveCart();
 }
+
 function showToast(message) {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
@@ -405,15 +425,17 @@ function renderCartPage() {
           <div class="cart-item reveal-right" style="transition-delay: ${i * 0.1}s">
             <div class="cart-item-img"><img src="${item.image}" alt="${item.title}"></div>
             <div class="flex-grow-1">
-              <div class="fw-bold fs-5 mb-1">${item.title}</div>
+              <div class="fw-bold fs-5 mb-1 text-truncate" title="${item.title}">${item.title}</div>
               <div class="text-cyan fw-bold">${formatPrice(item.priceNum)} تومان</div>
             </div>
-            <div class="quantity-selector">
-              <button class="quantity-btn" onclick="changeCartQty('${item.id}', -1)"><i class="bi bi-dash"></i></button>
-              <div style="width: 30px; text-align: center;">${toPersianNum(item.qty)}</div>
-              <button class="quantity-btn" onclick="changeCartQty('${item.id}', 1)"><i class="bi bi-plus"></i></button>
+            <div class="cart-item-actions">
+              <div class="quantity-selector">
+                <button class="quantity-btn" onclick="changeCartQty('${item.id}', -1)"><i class="bi bi-dash"></i></button>
+                <div style="width: 30px; text-align: center;">${toPersianNum(item.qty)}</div>
+                <button class="quantity-btn" onclick="changeCartQty('${item.id}', 1)"><i class="bi bi-plus"></i></button>
+              </div>
+              <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart('${item.id}')" title="حذف محصول"><i class="bi bi-trash"></i></button>
             </div>
-            <button class="btn btn-sm btn-outline-danger ms-3" onclick="removeFromCart('${item.id}')" title="حذف محصول"><i class="bi bi-trash"></i></button>
           </div>
         `;
   });
