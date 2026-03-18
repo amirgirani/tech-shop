@@ -701,3 +701,38 @@ body {
     right: 0px;
   }
 }
+
+/* =========================================
+       بهینه‌سازی سبد خرید برای نسخه موبایل
+       ========================================= */
+@media (max-width: 767px) {
+  .cart-item {
+    flex-wrap: wrap;
+    position: relative;
+    padding-bottom: 25px;
+    align-items: flex-start;
+  }
+  .cart-item-img {
+    width: 75px;
+    height: 75px;
+  }
+  .cart-item .flex-grow-1 {
+    width: calc(100% - 95px);
+  }
+  .cart-item .fs-5 {
+    font-size: 1rem !important;
+  }
+  .cart-item .quantity-selector {
+    margin-top: 10px;
+    margin-right: 95px;
+  }
+  .cart-item .quantity-btn {
+    padding: 8px 15px;
+  }
+  .cart-item .btn-outline-danger {
+    position: absolute;
+    bottom: 25px;
+    left: 15px;
+    margin-left: 0 !important;
+  }
+}
