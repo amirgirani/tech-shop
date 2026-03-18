@@ -393,7 +393,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 20px;
-  margin-bottom: 15px;
+  margin-top: 3rem;
   transition: 0.3s;
 }
 .cart-item:hover {
