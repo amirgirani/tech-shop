@@ -728,6 +728,7 @@ body {
   .cart-item {
     gap: 15px;
     padding: 15px;
+    margin-top:3rem;
   }
   .cart-item-img {
     width: 80px;
